@@ -47,7 +47,8 @@
     "files": [
       "build/**/*",
       "main.js",
-      "preload.js"
+      "preload.js",
+      "src/config/**/*"
     ],
     "extraResources": [
       {
