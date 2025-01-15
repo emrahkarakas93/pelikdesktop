@@ -178,9 +178,7 @@ const Login = ({ onLoginSuccess }) => {
                   Beni Hatırla
                 </label>
               </div>
-              <button type="button" className="text-sm text-primary-600 hover:text-primary-500 transition-colors">
-                Şifremi Unuttum
-              </button>
+
             </div>
 
             {error && (
