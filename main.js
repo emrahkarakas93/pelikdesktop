@@ -1,11 +1,10 @@
 const { app, BrowserWindow, session, screen, ipcMain, desktopCapturer } = require("electron");
+const { autoUpdater } = require('electron-updater');
 const path = require("path");
 const dotenv = require("dotenv");
 const { exec } = require('child_process');
 const getmac = require('getmac').default;
 const { getRecordingApps } = require('./src/config/recording-apps');
-const { autoUpdater } = require('electron-updater');
-const log = require('electron-log');
 
 const envPath = app.isPackaged 
   ? path.join(process.resourcesPath, '.env')
@@ -21,11 +20,6 @@ let lastDetectionResult = { isRecording: false, detectedApp: null };
 let consecutiveDetections = 0;
 const DETECTION_THRESHOLD = 2; // Kaç kez üst üste tespit edilmesi gerektiği
 const CHECK_INTERVAL = 3000; // Kontrol aralığı (ms)
-
-// Güncelleme loglarını yapılandır
-log.transports.file.level = 'info';
-autoUpdater.logger = log;
-autoUpdater.autoDownload = false;
 
 function getCachedToken() {
   if (!cachedToken || (tokenExpiryTime && Date.now() > tokenExpiryTime)) {
@@ -168,41 +162,20 @@ function createMainWindow() {
   mainWindow.loadFile("./build/index.html");
   startScreenCaptureDetection();
 
-  // Güncelleme kontrolü
-  if (app.isPackaged) {
-    autoUpdater.checkForUpdates();
-  }
+  // Güncelleme kontrolleri
+  autoUpdater.checkForUpdatesAndNotify();
 
   // Güncelleme olayları
-  autoUpdater.on('checking-for-update', () => {
-    log.info('Güncellemeler kontrol ediliyor...');
+  autoUpdater.on('update-available', () => {
+    mainWindow.webContents.send('update-available');
   });
 
-  autoUpdater.on('update-available', (info) => {
-    log.info('Güncelleme mevcut:', info);
-    mainWindow.webContents.send('update-available', info);
+  autoUpdater.on('update-downloaded', () => {
+    mainWindow.webContents.send('update-downloaded');
   });
 
-  autoUpdater.on('update-not-available', (info) => {
-    log.info('Güncelleme yok');
-  });
-
-  autoUpdater.on('error', (err) => {
-    log.error('Güncelleme hatası:', err);
-    mainWindow.webContents.send('update-error', err);
-  });
-
-  autoUpdater.on('download-progress', (progressObj) => {
-    mainWindow.webContents.send('update-progress', progressObj);
-  });
-
-  autoUpdater.on('update-downloaded', (info) => {
-    log.info('Güncelleme indirildi:', info);
-    mainWindow.webContents.send('update-downloaded', info);
-  });
-
-  // WebView session ayarları
   const webviewSession = session.fromPartition("persist:session");
+
   webviewSession.webRequest.onBeforeSendHeaders(
     { urls: ["*://*/*"] },
     (details, callback) => {
@@ -257,11 +230,7 @@ ipcMain.handle('get-mac-address', () => {
 });
 
 // Güncelleme olayları için IPC handlers
-ipcMain.on('check-for-updates', () => {
-  autoUpdater.checkForUpdates();
-});
-
-ipcMain.on('install-update', () => {
+ipcMain.on('restart-app', () => {
   autoUpdater.quitAndInstall();
 });
 

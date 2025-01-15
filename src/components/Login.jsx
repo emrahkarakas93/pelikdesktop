@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/apiClient";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import Swal from 'sweetalert2';
 
 const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState("");
@@ -19,55 +18,6 @@ const Login = ({ onLoginSuccess }) => {
       setUsername(savedEmail);
       setRememberMe(true);
     }
-
-    // Güncelleme bildirimleri
-    window.electron.onUpdateAvailable((info) => {
-      Swal.fire({
-        title: 'Yeni Güncelleme Mevcut!',
-        text: `Yeni versiyon (${info.version}) mevcut. Güncellemek ister misiniz?`,
-        icon: 'info',
-        showCancelButton: true,
-        confirmButtonText: 'Güncelle',
-        cancelButtonText: 'Daha Sonra'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.electron.installUpdate();
-        }
-      });
-    });
-
-    window.electron.onUpdateProgress((progress) => {
-      Swal.fire({
-        title: 'Güncelleme İndiriliyor',
-        html: `İndirme durumu: %${Math.round(progress.percent)}`,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false
-      });
-    });
-
-    window.electron.onUpdateError((error) => {
-      Swal.fire({
-        title: 'Güncelleme Hatası',
-        text: 'Güncelleme sırasında bir hata oluştu.',
-        icon: 'error'
-      });
-    });
-
-    window.electron.onUpdateDownloaded((info) => {
-      Swal.fire({
-        title: 'Güncelleme Hazır',
-        text: 'Güncelleme indirildi. Uygulamayı yeniden başlatmak ister misiniz?',
-        icon: 'success',
-        showCancelButton: true,
-        confirmButtonText: 'Yeniden Başlat',
-        cancelButtonText: 'Daha Sonra'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.electron.installUpdate();
-        }
-      });
-    });
   }, []);
 
   const getErrorMessage = (message) => {
@@ -167,7 +117,6 @@ const Login = ({ onLoginSuccess }) => {
               </svg>
             </div>
             <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">Hoş Geldiniz</h2>
-            <p className="text-neutral-500">Hesabınıza giriş yapın</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -267,9 +216,6 @@ const Login = ({ onLoginSuccess }) => {
             </button>
           </form>
         </div>
-      </div>
-      <div className="absolute bottom-2 right-2 text-xs text-neutral-400">
-        v{window.electron.version}
       </div>
     </div>
   );

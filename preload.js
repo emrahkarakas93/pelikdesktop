@@ -10,18 +10,7 @@ contextBridge.exposeInMainWorld('electron', {
         });
     },
     getMacAddress: () => ipcRenderer.invoke('get-mac-address'),
-    version: require('../package.json').version,
-    onUpdateAvailable: (callback) => {
-        ipcRenderer.on('update-available', (_, info) => callback(info));
-    },
-    onUpdateProgress: (callback) => {
-        ipcRenderer.on('update-progress', (_, progress) => callback(progress));
-    },
-    onUpdateError: (callback) => {
-        ipcRenderer.on('update-error', (_, error) => callback(error));
-    },
-    onUpdateDownloaded: (callback) => {
-        ipcRenderer.on('update-downloaded', (_, info) => callback(info));
-    },
-    installUpdate: () => ipcRenderer.send('install-update')
+    onUpdateAvailable: (callback) => ipcRenderer.on('update-available', callback),
+    onUpdateDownloaded: (callback) => ipcRenderer.on('update-downloaded', callback),
+    restartApp: () => ipcRenderer.send('restart-app'),
 }); 
