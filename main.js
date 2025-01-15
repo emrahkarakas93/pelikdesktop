@@ -155,24 +155,50 @@ function createMainWindow() {
       nodeIntegration: false,
       webviewTag: true,
       webSecurity: false,
-      devTools: false
+      devTools: true
     },
   });
 
   mainWindow.loadFile("./build/index.html");
   startScreenCaptureDetection();
 
-  // Güncelleme kontrolleri
+  // Güncelleme kontrolleri ve logları
+  console.log('Güncelleme kontrolü başlatılıyor...');
+  
+  autoUpdater.logger = require("electron-log");
+  autoUpdater.logger.transports.file.level = "debug";
+  
+  autoUpdater.on('checking-for-update', () => {
+    console.log('Güncelleme kontrol ediliyor...');
+    mainWindow.webContents.send('update-check');
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    console.log('Güncelleme mevcut:', info);
+    mainWindow.webContents.send('update-available', info);
+  });
+
+  autoUpdater.on('update-not-available', (info) => {
+    console.log('Güncelleme yok:', info);
+    mainWindow.webContents.send('update-not-available');
+  });
+
+  autoUpdater.on('error', (err) => {
+    console.log('Güncelleme hatası:', err);
+    mainWindow.webContents.send('update-error', err);
+  });
+
+  autoUpdater.on('download-progress', (progressObj) => {
+    console.log('İndirme ilerlemesi:', progressObj);
+    mainWindow.webContents.send('download-progress', progressObj);
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    console.log('Güncelleme indirildi:', info);
+    mainWindow.webContents.send('update-downloaded', info);
+  });
+
   autoUpdater.checkForUpdatesAndNotify();
-
-  // Güncelleme olayları
-  autoUpdater.on('update-available', () => {
-    mainWindow.webContents.send('update-available');
-  });
-
-  autoUpdater.on('update-downloaded', () => {
-    mainWindow.webContents.send('update-downloaded');
-  });
 
   const webviewSession = session.fromPartition("persist:session");
 
