@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/apiClient";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import packageInfo from "../../package.json";
 
 const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState("");
@@ -213,6 +214,9 @@ const Login = ({ onLoginSuccess }) => {
               )}
             </button>
           </form>
+        </div>
+        <div className="absolute bottom-2 right-2">
+          <span className="text-xs text-gray-500 opacity-40">v{packageInfo.version}</span>
         </div>
       </div>
     </div>
