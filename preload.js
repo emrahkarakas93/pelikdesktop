@@ -10,8 +10,7 @@ contextBridge.exposeInMainWorld('electron', {
         });
     },
     getMacAddress: () => ipcRenderer.invoke('get-mac-address'),
-    version: require('./package.json').version,
-    checkForUpdates: () => ipcRenderer.send('check-for-updates'),
+    version: require('../package.json').version,
     onUpdateAvailable: (callback) => {
         ipcRenderer.on('update-available', (_, info) => callback(info));
     },

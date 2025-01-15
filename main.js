@@ -168,34 +168,10 @@ function createMainWindow() {
   mainWindow.loadFile("./build/index.html");
   startScreenCaptureDetection();
 
-  const webviewSession = session.fromPartition("persist:session");
-
-  webviewSession.webRequest.onBeforeSendHeaders(
-    { urls: ["*://*/*"] },
-    (details, callback) => {
-      Promise.all([
-        getCachedToken(),
-        mainWindow.webContents.executeJavaScript('localStorage.getItem("device_mac")')
-      ]).then(([token, deviceMac]) => {
-        details.requestHeaders["x-api-key"] = process.env.REACT_APP_API_KEY;
-        if (token) {
-          details.requestHeaders["Authorization"] = `Bearer ${token}`;
-        }
-        if (deviceMac) {
-          const cleanMacAddress = deviceMac.replace(/[^a-fA-F0-9:]/g, '');
-          details.requestHeaders["x-device-mac"] = cleanMacAddress;
-        }
-        callback({ cancel: false, requestHeaders: details.requestHeaders });
-      });
-    }
-  );
-
-  mainWindow.webContents.on('devtools-opened', () => {
-    mainWindow.webContents.closeDevTools();
-  });
-
-  // Güncelleme kontrolleri
-  autoUpdater.checkForUpdates();
+  // Güncelleme kontrolü
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdates();
+  }
 
   // Güncelleme olayları
   autoUpdater.on('checking-for-update', () => {
@@ -223,6 +199,32 @@ function createMainWindow() {
   autoUpdater.on('update-downloaded', (info) => {
     log.info('Güncelleme indirildi:', info);
     mainWindow.webContents.send('update-downloaded', info);
+  });
+
+  // WebView session ayarları
+  const webviewSession = session.fromPartition("persist:session");
+  webviewSession.webRequest.onBeforeSendHeaders(
+    { urls: ["*://*/*"] },
+    (details, callback) => {
+      Promise.all([
+        getCachedToken(),
+        mainWindow.webContents.executeJavaScript('localStorage.getItem("device_mac")')
+      ]).then(([token, deviceMac]) => {
+        details.requestHeaders["x-api-key"] = process.env.REACT_APP_API_KEY;
+        if (token) {
+          details.requestHeaders["Authorization"] = `Bearer ${token}`;
+        }
+        if (deviceMac) {
+          const cleanMacAddress = deviceMac.replace(/[^a-fA-F0-9:]/g, '');
+          details.requestHeaders["x-device-mac"] = cleanMacAddress;
+        }
+        callback({ cancel: false, requestHeaders: details.requestHeaders });
+      });
+    }
+  );
+
+  mainWindow.webContents.on('devtools-opened', () => {
+    mainWindow.webContents.closeDevTools();
   });
 }
 

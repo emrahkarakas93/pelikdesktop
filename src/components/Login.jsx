@@ -19,11 +19,8 @@ const Login = ({ onLoginSuccess }) => {
       setUsername(savedEmail);
       setRememberMe(true);
     }
-  }, []);
 
-  useEffect(() => {
-    window.electron.checkForUpdates();
-
+    // Güncelleme bildirimleri
     window.electron.onUpdateAvailable((info) => {
       Swal.fire({
         title: 'Yeni Güncelleme Mevcut!',

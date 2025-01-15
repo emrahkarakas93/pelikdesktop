@@ -66,8 +66,8 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "KULLANICI_ADI",
-      "repo": "REPO_ADI"
+      "owner": "emrahkarakas93",
+      "repo": "pelikdesktop"
     },
     "win": {
       "target": [
